@@ -3,7 +3,7 @@ import json
 from django.http import HttpRequest
 from django.shortcuts import render
 
-from api.classifier import classify
+from api.views.classifier import classify
 
 # Create your views here.
 
