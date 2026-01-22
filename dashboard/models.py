@@ -60,6 +60,7 @@ class TgUser(models.Model):
 class WarningMessage(models.Model):
     chat = models.ForeignKey(TelegramChat, on_delete=models.CASCADE)
     message_id = models.BigIntegerField()
+    user_tg_id = models.BigIntegerField(null=True, blank=True)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 

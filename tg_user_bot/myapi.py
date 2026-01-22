@@ -56,6 +56,17 @@ class MyAPI:
             return {"ok": False, "error": "Request failed"}
         data = response.json()
         return data
-    
+
+    def create_warning_message(self, chat_id: int, message_id: int, content: str, user_id: int = None) -> dict:
+        url = f"http://{self.BASE_URL}/api/create_warning"
+        json_data = {"token": self.TOKEN,
+                     "chat_id": chat_id,
+                     "message_id": message_id,
+                      "content": content}
+        resp = requests.post(url, json=json_data)
+        print(resp.json())
+        if resp.status_code != 200:
+            return True
+        return False
 
     

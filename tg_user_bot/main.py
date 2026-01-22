@@ -3,6 +3,8 @@ from pyrogram import Client, filters, idle
 from pyrogram.types import Message
 import os, time, asyncio
 from myapi import MyAPI
+from asyncio import Semaphore
+from pyrogram.enums import ChatType
 
 
 load_dotenv()
@@ -11,6 +13,7 @@ API_ID = int(os.getenv("API_ID"))
 PHONE_NUM = os.getenv("PHONE_NUM")
 app = Client("user_bot", api_id=API_ID, api_hash=API_HASH, phone_number=PHONE_NUM)
 api = MyAPI()
+sema = Semaphore()
 
 @app.on_message((filters.group | filters.private | filters.channel) & (filters.text | filters.caption))
 async def message_handler(client: Client, message: Message):
@@ -22,19 +25,24 @@ async def message_handler(client: Client, message: Message):
         return
     
     text = (message.text or message.caption or "")
-    result = api.check_message(text)
+    async with sema:
+        result = api.check_message(text)
+
+    print("result:", result)
     if not result.get('ok'):
-        print(result)
+        print('check message:', result)
         return
     
     if result.get("ok"):
         label = result['result']['label']
         confidence = result['result']['confidence']
         if label in ['drug_ad', 'drug_related']:
-            await message.reply_text(
-                f"⚠️ This message was flagged as *{label}* with confidence *{confidence:.2f}*.\n\n"
-                "Please review its content carefully."
-            )
+            print(message.chat.type)
+            if message.chat.type in [ChatType.GROUP, ChatType.SUPERGROUP]:
+                await message.reply_text(
+                f"⚠️ Ushbu xabar *{label}*  deb belgilandi *{confidence:.2f}* aniqlik bilan.\n\n")
+
+            api.create_warning_message(message.chat.id, message.id, text, user_id=message.from_user.id if message.from_user else None)
         
     
     
