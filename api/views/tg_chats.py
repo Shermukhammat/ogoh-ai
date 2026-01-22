@@ -12,35 +12,65 @@ from django.contrib.auth import login as dlogin
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import serializers
 from django.db.models import Count
-from . import TokenAuthentication
-
-
+from django.views.decorators.http import require_GET
+from . import TokenAuthentication, REST_API_TOKEN
 
 
 class TelegramChatSerializer(serializers.ModelSerializer):
     class Meta:
         model = TelegramChat
-        fields = ['tg_id', 'username', 'first_name', 'last_name', 'created_at']
+        fields = ['id', 'tg_id', 'username', 'title', 'created_at',
+                  'last_checked_at', 'type', 'risk']
+
 
 
 class TelegramChatViewSet(viewsets.ModelViewSet):
     queryset = TelegramChat.objects.all()
     serializer_class = TelegramChatSerializer
     authentication_classes = [TokenAuthentication]
-    lookup_field = 'tg_id'
+    lookup_field = 'id'
     lookup_value_regex = r'\d+'
 
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    def retrieve(self, request, tg_id=None):
-        return super().retrieve(request, tg_id)
+    def retrieve(self, request, id=None):
+        return super().retrieve(request, id)
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    def update(self, request, tg_id=None):
-        return super().update(request, tg_id)
+    def update(self, request, id=None):
+        return super().update(request, id)
 
-    def destroy(self, request, tg_id=None):
-        return super().destroy(request, tg_id)
+    def destroy(self, request, id=None):
+        return super().destroy(request, id)
+
+
+@require_GET
+def get_new_chat(request: HttpRequest) -> JsonResponse:
+    token = request.GET.get('token')
+    if token != REST_API_TOKEN:
+        return JsonResponse({'ok': False, 'error': 'Invalid token'}, status=401)
+    
+    chats = TelegramChat.objects.filter(risky = 'risky', ).order_by('created_at')[:1]
+    return JsonResponse({
+        'ok': True,})
+
+
+@require_GET
+def get_chat(request: HttpRequest):
+    token = request.GET.get('token')
+    if token != REST_API_TOKEN:
+        return JsonResponse({'ok': False, 'error': 'Invalid token'}, status=401)
+    
+    tg_id = request.GET.get('tg_id')
+    if not tg_id:
+        return JsonResponse({'ok': False, 'error': 'tg_id parameter is required'}, status=400)
+    
+    chat = TelegramChat.objects.filter(tg_id=tg_id).first()
+    if not chat:
+        return JsonResponse({'ok': False, 'error': 'Chat not found'}, status=404)
+    
+    serializer = TelegramChatSerializer(chat)
+    return JsonResponse(serializer.data)

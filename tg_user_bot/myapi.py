@@ -9,34 +9,18 @@ class ChatType:
     USER = "user"
 
 class TgChat:
-    def __init__(self, tg_id : int = None,
-                 chat_type : str = None,
-                 title : str = None,
-                 first_name : str = None,
-                 last_name : str = None,
-                 username : str = None,
-                 description : str = None,
-                 members_count : int = None,
-                 last_checked_message_id : int = None,
-                 is_safe : bool = None,
-                 risk_score : float = None,
-                 discovered_by : str = None,
-                 created_at : str = None,
-                 last_checked_at : str = None):
-        self.tg_id = tg_id
-        self.chat_type = chat_type
-        self.title = title
-        self.first_name = first_name
-        self.last_name = last_name
-        self.username = username
-        self.description = description
-        self.members_count = members_count
-        self.last_checked_message_id = last_checked_message_id
-        self.is_safe = is_safe
-        self.risk_score = risk_score
-        self.discovered_by = discovered_by
-        self.created_at = created_at
-        self.last_checked_at = last_checked_at
+    def __init__(self, data: dict):
+        self.id = data.get('id')
+        self.tg_id = data.get('tg_id')
+        self.username = data.get('username')
+        self.chat_type = data.get('type')
+        self.title = data.get('title')
+        self.description = data.get('description')
+        self.risk = data.get('risk')
+        
+        self.invate_link = data.get('invate_link')
+        self.created_at = data.get('created_at')
+
 
     
 
@@ -47,20 +31,31 @@ class MyAPI:
         self.TOKEN = token 
 
     def get_chat(self, tg_id: int) -> TgChat:
-        url = f"http://{self.BASE_URL}/api/tg_chats/{tg_id}/?token={self.TOKEN}"
-        response = requests.get(url)
+        url = f"http://{self.BASE_URL}/api/tg_chat"
+        response = requests.get(url, params={'token': self.TOKEN, 'tg_id': tg_id})
         if response.status_code != 200:
             return None
         data = response.json()
-        chat = TgChat(
-            tg_id=data.get('tg_id'),
-            chat_type=data.get('type'),
-            title=data.get('title'),
-            first_name=data.get('first_name'),
-            last_name=data.get('last_name'),
-            username=data.get('username'),
-            created_at=data.get('created_at'),
-            last_checked_at=data.get('last_checked_at')
-        )
-        return chat
+        return TgChat(data)
+    
+    def get_new_chat(self) -> list[TgChat]:
+        url = f"http://{self.BASE_URL}/api/get_new_chat/?token={self.TOKEN}"
+        response = requests.get(url)
+        if response.status_code != 200:
+            return []
+        data = response.json()
+        if not data.get('ok'):
+            return []
+        chat_data = data.get('chats')
+        return [TgChat(chat) for chat in chat_data]
+    
+    def check_message(self, message: str) -> dict:
+        url = f"http://{self.BASE_URL}/api/check_message"
+        response = requests.get(url, params={'token': self.TOKEN, 'message': message})
+        if response.status_code != 200:
+            return {"ok": False, "error": "Request failed"}
+        data = response.json()
+        return data
+    
+
     

@@ -15,5 +15,5 @@ class TokenAuthentication(BaseAuthentication):
             raise AuthenticationFailed('Invalid token')
         return (None, None)  
 
-from .ads_model import classify_ads_api
-from .tg_chats import TelegramChatViewSet
+from .ads_model import classify_ads_api, check_message
+from .tg_chats import TelegramChatViewSet, get_new_chat, get_chat

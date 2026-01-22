@@ -14,9 +14,30 @@ api = MyAPI()
 
 @app.on_message((filters.group | filters.private | filters.channel) & (filters.text | filters.caption))
 async def message_handler(client: Client, message: Message):
+    chat = api.get_chat(message.chat.id)
+    if not chat:
+        return
+
+    if chat.risk != 'risky':
+        return
+    
     text = (message.text or message.caption or "")
-    print(f"{message.chat.type} {message.chat.id}: {text[:120]}")
-    await message.reply_text("warning")
+    result = api.check_message(text)
+    if not result.get('ok'):
+        print(result)
+        return
+    
+    if result.get("ok"):
+        label = result['result']['label']
+        confidence = result['result']['confidence']
+        if label in ['drug_ad', 'drug_related']:
+            await message.reply_text(
+                f"⚠️ This message was flagged as *{label}* with confidence *{confidence:.2f}*.\n\n"
+                "Please review its content carefully."
+            )
+        
+    
+    
 
 
 async def loop():

@@ -1,13 +1,10 @@
 import json, os
 from google import genai
+from dotenv import load_dotenv
 
-try:
-    from dotenv import load_dotenv
-except ImportError:
-    load_dotenv = None
 
-if load_dotenv:
-    load_dotenv()
+load_dotenv()
+
 
 SCHEMA = {
     "type": "object",
@@ -65,13 +62,20 @@ def classify(text: str) -> dict:
     resp = _get_client().models.generate_content(
         model="gemini-2.5-flash",
         contents=[
-            {"role": "user", "parts": [{"text": SYSTEM + "\n\nMESSAGE:\n" + text}]}
-        ],
-        config={
-            "response_mime_type": "application/json",
-            "response_schema": SCHEMA,
-            "temperature": 0.0,
+        {
+            "role": "model",
+            "parts": [{"text": SYSTEM}]
         },
+        {
+            "role": "user",
+            "parts": [{"text": text}]
+        }
+    ],
+    config={
+        "response_mime_type": "application/json",
+        "response_schema": SCHEMA,
+        "temperature": 0.0,
+    }
     )
     payload = getattr(resp, "parsed", None) or getattr(resp, "text", None)
     if isinstance(payload, dict):
