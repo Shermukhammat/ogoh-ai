@@ -1,27 +1,31 @@
+{% load static %}
 <!doctype html>
-<html lang="en">
+<html lang="uz">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Message Safety Classifier</title>
+    <title>Ogoh AI Admin Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Sora:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
         color-scheme: light;
-        --bg: #f6f1e8;
-        --panel: #fff7ed;
-        --ink: #1e1c18;
-        --muted: #5b554c;
-        --accent: #0f8b8d;
-        --accent-strong: #0c6f70;
-        --accent-warm: #e26d3c;
-        --border: #e4d7c6;
-        --shadow: 0 24px 60px rgba(30, 28, 24, 0.14);
+        --bg: #f3efe7;
+        --surface: #fffaf3;
+        --ink: #1a1815;
+        --muted: #5f5952;
+        --accent: #1c4d6b;
+        --accent-soft: #e3eef6;
+        --accent-warm: #d66a3a;
+        --safe: #1e7f5f;
+        --risky: #b23b3b;
+        --unknown: #8b6f2d;
+        --border: #e1d8cb;
+        --shadow: 0 26px 60px rgba(26, 24, 21, 0.14);
       }
 
       * {
@@ -30,12 +34,12 @@
 
       body {
         margin: 0;
-        font-family: "Space Grotesk", sans-serif;
+        font-family: "Sora", sans-serif;
         color: var(--ink);
         background:
-          radial-gradient(circle at 10% 10%, #fff5db 0, transparent 45%),
-          radial-gradient(circle at 90% 20%, #f9dcc3 0, transparent 50%),
-          linear-gradient(180deg, #f9f1e3 0%, #f3e7d7 100%);
+          radial-gradient(circle at 15% 15%, #fff3da 0, transparent 45%),
+          radial-gradient(circle at 85% 20%, #e4f1f7 0, transparent 48%),
+          linear-gradient(160deg, #f7f2ea 0%, #efe7da 100%);
         min-height: 100vh;
       }
 
@@ -43,23 +47,23 @@
       body::after {
         content: "";
         position: fixed;
-        width: 320px;
-        height: 320px;
+        width: 340px;
+        height: 340px;
         border-radius: 50%;
         z-index: -1;
         filter: blur(0);
-        opacity: 0.2;
-        animation: float 18s ease-in-out infinite;
+        opacity: 0.18;
+        animation: float 20s ease-in-out infinite;
       }
 
       body::before {
-        background: #0f8b8d;
+        background: #1c4d6b;
         top: -120px;
         left: -80px;
       }
 
       body::after {
-        background: #e26d3c;
+        background: #d66a3a;
         bottom: -120px;
         right: -60px;
         animation-delay: -6s;
@@ -75,221 +79,339 @@
         }
       }
 
-      .shell {
-        max-width: 1100px;
+      .page {
+        max-width: 1180px;
         margin: 0 auto;
-        padding: 48px 24px 72px;
+        padding: 44px 24px 72px;
       }
 
       .hero {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-bottom: 36px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+        gap: 24px;
+        align-items: center;
+        margin-bottom: 32px;
         animation: rise 0.8s ease-out both;
       }
 
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      .brand-logo {
+        display: block;
+        max-width: 120px;
+        height: auto;
+      }
+
       .hero h1 {
-        font-family: "Fraunces", serif;
-        font-weight: 700;
-        font-size: clamp(2.1rem, 3vw, 3rem);
+        font-family: "DM Serif Display", serif;
+        font-weight: 400;
+        font-size: clamp(2rem, 3vw, 3rem);
         letter-spacing: -0.02em;
-        margin: 0;
+        margin: 0 0 10px;
       }
 
       .hero p {
         margin: 0;
         color: var(--muted);
-        max-width: 680px;
-        font-size: 1.05rem;
+        max-width: 640px;
+        font-size: 1.02rem;
+        line-height: 1.6;
+      }
+
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+
+      .stat {
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 16px 18px;
+        border: 1px solid var(--border);
+        box-shadow: 0 16px 30px rgba(26, 24, 21, 0.08);
+      }
+
+      .stat-label {
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 0.7rem;
+        font-weight: 600;
+      }
+
+      .stat-value {
+        font-size: 1.6rem;
+        font-weight: 600;
+        margin-top: 6px;
+      }
+
+      .stat-note {
+        font-size: 0.88rem;
+        color: var(--muted);
+        margin-top: 6px;
       }
 
       .grid {
         display: grid;
-        grid-template-columns: 1.05fr 0.95fr;
-        gap: 28px;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+        gap: 24px;
       }
 
-      .card {
-        background: var(--panel);
+      .panel {
+        background: var(--surface);
         border: 1px solid var(--border);
-        border-radius: 22px;
-        padding: 28px;
+        border-radius: 24px;
+        padding: 24px;
         box-shadow: var(--shadow);
         animation: rise 0.9s ease-out both;
       }
 
-      .card h2 {
-        font-family: "Fraunces", serif;
-        margin: 0 0 18px;
-        font-size: 1.5rem;
-      }
-
-      label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 10px;
-      }
-
-      textarea {
-        width: 100%;
-        min-height: 180px;
-        resize: vertical;
-        border-radius: 16px;
-        border: 1px solid var(--border);
-        padding: 16px;
-        font-family: inherit;
-        font-size: 1rem;
-        background: #fffdfa;
-        color: var(--ink);
-        box-shadow: inset 0 0 0 rgba(0, 0, 0, 0);
-        transition: border 0.2s ease, box-shadow 0.2s ease;
-      }
-
-      textarea:focus {
-        outline: none;
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(15, 139, 141, 0.2);
-      }
-
-      .actions {
+      .panel-head {
         display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 12px;
-        margin-top: 18px;
-      }
-
-      .button {
-        border: none;
-        border-radius: 999px;
-        padding: 12px 22px;
-        font-weight: 600;
-        font-size: 1rem;
-        cursor: pointer;
-        background: linear-gradient(135deg, var(--accent), #3ab3a4);
-        color: #ffffff;
-        box-shadow: 0 14px 30px rgba(15, 139, 141, 0.3);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-      }
-
-      .button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 18px 36px rgba(15, 139, 141, 0.35);
-      }
-
-      .hint {
-        color: var(--muted);
-        font-size: 0.95rem;
-      }
-
-      .status {
-        border-radius: 14px;
-        padding: 12px 14px;
-        background: #fff2e2;
-        border: 1px solid #f2d7ba;
-        color: #8a4d2e;
-        margin-bottom: 16px;
-      }
-
-      .result-top {
-        display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 12px;
         margin-bottom: 18px;
       }
 
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 6px 14px;
-        border-radius: 999px;
-        background: #0f8b8d;
-        color: #fff;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        font-size: 0.75rem;
+      .panel h2 {
+        font-family: "DM Serif Display", serif;
+        font-weight: 400;
+        margin: 0 0 6px;
+        font-size: 1.5rem;
       }
 
-      .confidence {
-        font-weight: 600;
-        color: var(--accent-strong);
-        background: #e6f5f3;
+      .panel p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .panel-chip {
+        background: var(--accent-soft);
+        color: var(--accent);
+        border-radius: 999px;
         padding: 6px 12px;
-        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 600;
       }
 
-      .section {
-        margin-bottom: 18px;
+      .table {
+        display: grid;
+        gap: 10px;
       }
 
-      .section h3 {
-        margin: 0 0 10px;
-        font-size: 1rem;
+      .row {
+        display: grid;
+        grid-template-columns: 1.4fr 0.7fr 0.6fr 0.9fr;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: #fffefb;
+        border: 1px solid transparent;
+      }
+
+      .row.header {
+        background: #f1e8db;
+        color: #4a443e;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.08em;
+        font-size: 0.72rem;
+      }
+
+      .row:not(.header):hover {
+        border-color: #e7dccb;
+        box-shadow: 0 10px 22px rgba(26, 24, 21, 0.08);
+      }
+
+      .title {
+        font-weight: 600;
+        font-size: 0.98rem;
+      }
+
+      .sub {
+        color: var(--muted);
+        font-size: 0.86rem;
+        margin-top: 4px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .dot {
+        width: 4px;
+        height: 4px;
+        border-radius: 999px;
+        background: var(--muted);
+        display: inline-block;
+      }
+
+      .risk {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .risk--safe {
+        background: rgba(30, 127, 95, 0.12);
+        color: var(--safe);
+      }
+
+      .risk--risky {
+        background: rgba(178, 59, 59, 0.12);
+        color: var(--risky);
+      }
+
+      .risk--unknown {
+        background: rgba(139, 111, 45, 0.12);
+        color: var(--unknown);
+      }
+
+      .warning-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .warning-card {
+        background: #fffefb;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 14px 16px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .warning-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .warning-chat {
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      .warning-pill {
+        background: #fde8df;
+        color: #b33f2a;
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 0.74rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .warning-content {
+        margin: 0;
+        font-size: 0.92rem;
+        color: #2c2823;
+        line-height: 1.5;
+      }
+
+      .warning-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: 0.8rem;
         color: var(--muted);
       }
 
-      .reasons {
-        margin: 0;
-        padding-left: 20px;
-      }
-
-      .span-card {
-        border: 1px dashed #e0c5a8;
-        border-radius: 16px;
-        padding: 12px 14px;
-        background: #fffaf4;
-        margin-bottom: 10px;
-      }
-
-      .span-card strong {
-        display: block;
-        margin-bottom: 6px;
-      }
-
-      details {
-        margin-top: 10px;
-      }
-
-      pre {
-        background: #12110f;
-        color: #f6f1e8;
-        padding: 16px;
-        border-radius: 14px;
-        overflow-x: auto;
-        font-size: 0.9rem;
-      }
-
-      .legend {
+      .pager {
         display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 18px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 16px;
       }
 
-      .legend span {
-        background: #f0e1d1;
+      .page-link {
+        padding: 8px 14px;
         border-radius: 999px;
-        padding: 6px 12px;
-        font-size: 0.85rem;
+        border: 1px solid var(--border);
+        background: #fff;
+        color: var(--ink);
+        font-size: 0.86rem;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .page-link:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .page-link.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      .page-numbers {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .page-number {
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid transparent;
+        background: #f4eee5;
+        color: var(--muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.82rem;
+      }
+
+      .page-number.active {
+        background: var(--accent);
+        color: #fff;
       }
 
       .empty-state {
         text-align: center;
         color: var(--muted);
-        font-size: 1rem;
-        padding: 36px 18px;
+        font-size: 0.96rem;
+        padding: 32px 12px;
+        border: 1px dashed var(--border);
+        border-radius: 18px;
+        background: #fffdf8;
       }
 
       @keyframes rise {
         from {
           opacity: 0;
-          transform: translateY(16px);
+          transform: translateY(18px);
         }
         to {
           opacity: 1;
@@ -297,92 +419,225 @@
         }
       }
 
-      @media (max-width: 980px) {
+      @media (max-width: 1050px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+
         .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .row {
           grid-template-columns: 1fr;
         }
       }
     </style>
   </head>
   <body>
-    <div class="shell">
+    <div class="page">
       <header class="hero">
-        <h1>Telegram Message Safety Lens</h1>
-        <p>
-          Paste a Telegram message and get a structured safety classification.
-          The model highlights intent, confidence, and key cues without rewriting
-          the original text.
-        </p>
+        <div>
+          <div class="brand">
+            <img class="brand-logo" src="{% static 'logo.png' %}" alt="Ogoh AI" width="120" height="40" />
+            <h1>Ogoh AI Admin Dashboard</h1>
+          </div>
+          <p>
+            Telegram chatlarini kuzating, yuqori xavfli faollikni ajrating va
+            ogohlantirish xabarlarini bitta joyda ko‘rib chiqing. Faqat
+            moderatorlar va adminlar uchun.
+          </p>
+        </div>
       </header>
 
-      <div class="grid">
-        <section class="card">
-          <h2>Classify a Message</h2>
-          {% if error %}
-            <div class="status">{{ error }}</div>
-          {% endif %}
-          <form method="post">
-            {% csrf_token %}
-            <label for="message">Message text</label>
-            <textarea
-              id="message"
-              name="message"
-              placeholder="Paste or type the message to classify..."
-            >{{ input_text }}</textarea>
-            <div class="actions">
-              <button class="button" type="submit">Classify Now</button>
-              <span class="hint">Runs the safety classifier using your API key.</span>
-            </div>
-          </form>
-          <div class="legend">
-            <span>drug_ad: selling intent</span>
-            <span>drug_related: discussion only</span>
-            <span>benign: safe content</span>
-            <span>uncertain: needs review</span>
-          </div>
-        </section>
+      <section class="stats">
+        <div class="stat">
+          <div class="stat-label">Kuzatilayotgan chatlar</div>
+          <div class="stat-value">{{ chats_total }}</div>
+          <div class="stat-note">Faol va arxivlanganlar.</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Ogohlantirishlar</div>
+          <div class="stat-value">{{ warnings_total }}</div>
+          <div class="stat-note">So‘nggi xabarlar bo‘yicha.</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Hozir tinglanmoqda</div>
+          <div class="stat-value">{{ listening_total }}</div>
+          <div class="stat-note">Monitoringdagi chatlar.</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Yuqori xavf</div>
+          <div class="stat-value">{{ risky_total }}</div>
+          <div class="stat-note">Ustuvor tekshiruv.</div>
+        </div>
+      </section>
 
-        <section class="card">
-          <h2>Result</h2>
-          {% if result %}
-            <div class="result-top">
-              <span class="badge">{{ result.label|default:"unknown" }}</span>
-              <span class="confidence">
-                confidence {{ result.confidence|floatformat:2 }}
-              </span>
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Telegram chatlar</h2>
+              <p>Xavf darajasi va topilish metama'lumotlari bilan.</p>
             </div>
-            <div class="section">
-              <h3>Reasons</h3>
-              <ul class="reasons">
-                {% for reason in result.reasons %}
-                  <li>{{ reason }}</li>
-                {% empty %}
-                  <li>No reasons returned.</li>
-                {% endfor %}
-              </ul>
+            <div class="panel-chip">
+              Sahifa {{ chats_page_obj.number }} / {{ chats_page_obj.paginator.num_pages|default:1 }}
             </div>
-            {% if result.suspicious_spans %}
-              <div class="section">
-                <h3>Suspicious spans</h3>
-                {% for span in result.suspicious_spans %}
-                  <div class="span-card">
-                    <strong>"{{ span.text }}"</strong>
-                    <span>{{ span.why }}</span>
+          </div>
+
+          <div class="table">
+            <div class="row header">
+              <div>Chat</div>
+              <div>Xavf</div>
+              <div>A'zolar</div>
+              <div>Faollik</div>
+            </div>
+            {% for chat in chats_page_obj %}
+              <div class="row">
+                <div>
+                  <div class="title">{{ chat.title }}</div>
+                  <div class="sub">
+                    {% if chat.username %}
+                      @{{ chat.username }}
+                    {% else %}
+                      tg_id {{ chat.tg_id }}
+                    {% endif %}
+                    <span class="dot"></span>
+                    {{ chat.get_type_display }}
                   </div>
-                {% endfor %}
+                </div>
+                <div>
+                  <span class="risk risk--{{ chat.risk }}">{{ chat.risk }}</span>
+                  <div class="sub">Topildi: {{ chat.get_discovered_by_display }}</div>
+                </div>
+                <div>
+                  <div class="title">{{ chat.members_count|default_if_none:"-" }}</div>
+                  <div class="sub">{{ chat.listening|yesno:"Tinglanmoqda,To‘xtatilgan" }}</div>
+                </div>
+                <div>
+                  <div class="title">{{ chat.last_checked_at|date:"M d, Y H:i" }}</div>
+                  <div class="sub">Qo‘shildi {{ chat.created_at|date:"M d, Y" }}</div>
+                </div>
               </div>
+            {% empty %}
+              <div class="empty-state">Hozircha chatlar yo‘q.</div>
+            {% endfor %}
+          </div>
+
+          <div class="pager">
+            {% if chats_page_obj.has_previous %}
+              <a
+                class="page-link"
+                href="?chats_page={{ chats_page_obj.previous_page_number }}&warnings_page={{ warnings_page_obj.number }}"
+                >Oldingi</a
+              >
+            {% else %}
+              <span class="page-link disabled">Oldingi</span>
             {% endif %}
-            <details>
-              <summary>Raw JSON</summary>
-              <pre>{{ result_pretty }}</pre>
-            </details>
-          {% else %}
-            <div class="empty-state">
-              Your classification will appear here after you submit a message.
+
+            <div class="page-numbers">
+              {% for num in chats_page_obj.paginator.page_range %}
+                {% if num >= chats_page_obj.number|add:-2 and num <= chats_page_obj.number|add:2 %}
+                  {% if num == chats_page_obj.number %}
+                    <span class="page-number active">{{ num }}</span>
+                  {% else %}
+                    <a
+                      class="page-number"
+                      href="?chats_page={{ num }}&warnings_page={{ warnings_page_obj.number }}"
+                      >{{ num }}</a
+                    >
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
             </div>
-          {% endif %}
-        </section>
-      </div>
+
+            {% if chats_page_obj.has_next %}
+              <a
+                class="page-link"
+                href="?chats_page={{ chats_page_obj.next_page_number }}&warnings_page={{ warnings_page_obj.number }}"
+                >Keyingi</a
+              >
+            {% else %}
+              <span class="page-link disabled">Keyingi</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Ogohlantirish xabarlari</h2>
+              <p>So‘nggi belgilangan xabarlar va chat konteksti.</p>
+            </div>
+            <div class="panel-chip">
+              Sahifa {{ warnings_page_obj.number }} /
+              {{ warnings_page_obj.paginator.num_pages|default:1 }}
+            </div>
+          </div>
+
+          <div class="warning-list">
+            {% for warning in warnings_page_obj %}
+              <article class="warning-card">
+                <div class="warning-header">
+                  <div class="warning-chat">{{ warning.chat.title }}</div>
+                  <span class="warning-pill">Ogohlantirish</span>
+                </div>
+                <p class="warning-content">
+                  {{ warning.content|truncatechars:180 }}
+                </p>
+                <div class="warning-meta">
+                  <span>Chat {{ warning.chat.tg_id }}</span>
+                  <span>Xabar {{ warning.message_id }}</span>
+                  {% if warning.user_tg_id %}
+                    <span>Foydalanuvchi {{ warning.user_tg_id }}</span>
+                  {% endif %}
+                  <span>{{ warning.created_at|date:"M d, Y H:i" }}</span>
+                </div>
+              </article>
+            {% empty %}
+              <div class="empty-state">Hozircha ogohlantirishlar yo‘q.</div>
+            {% endfor %}
+          </div>
+
+          <div class="pager">
+            {% if warnings_page_obj.has_previous %}
+              <a
+                class="page-link"
+                href="?chats_page={{ chats_page_obj.number }}&warnings_page={{ warnings_page_obj.previous_page_number }}"
+                >Oldingi</a
+              >
+            {% else %}
+              <span class="page-link disabled">Oldingi</span>
+            {% endif %}
+
+            <div class="page-numbers">
+              {% for num in warnings_page_obj.paginator.page_range %}
+                {% if num >= warnings_page_obj.number|add:-2 and num <= warnings_page_obj.number|add:2 %}
+                  {% if num == warnings_page_obj.number %}
+                    <span class="page-number active">{{ num }}</span>
+                  {% else %}
+                    <a
+                      class="page-number"
+                      href="?chats_page={{ chats_page_obj.number }}&warnings_page={{ num }}"
+                      >{{ num }}</a
+                    >
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            {% if warnings_page_obj.has_next %}
+              <a
+                class="page-link"
+                href="?chats_page={{ chats_page_obj.number }}&warnings_page={{ warnings_page_obj.next_page_number }}"
+                >Keyingi</a
+              >
+            {% else %}
+              <span class="page-link disabled">Keyingi</span>
+            {% endif %}
+          </div>
+        </div>
+      </section>
     </div>
   </body>
 </html>
