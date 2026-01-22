@@ -591,6 +591,17 @@
                   {% if warning.user_tg_id %}
                     <span>Foydalanuvchi {{ warning.user_tg_id }}</span>
                   {% endif %}
+                  {% if warning.chat.username %}
+                    <span>
+                      <a
+                        class="page-link"
+                        href="https://t.me/{{ warning.chat.username }}/{{ warning.message_id }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        >Xabar havolasi</a
+                      >
+                    </span>
+                  {% endif %}
                   <span>{{ warning.created_at|date:"M d, Y H:i" }}</span>
                 </div>
               </article>
